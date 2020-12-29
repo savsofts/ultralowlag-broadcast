@@ -24,10 +24,10 @@ var app = express();
 
 
 var connection = mysql.createConnection({
-	host     : 'localhost',
-	user     : 'testing',
-	password : 'Broadcast@1234',
-	database : 'broadcast'
+	host     : config_var.db_hostname,
+	user     : config_var.db_username,
+	password : config_var.db_password,
+	database : config_var.db_name
 });
 
 connection.connect(function(err) {
