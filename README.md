@@ -54,7 +54,7 @@ Installation & setup
 
 Note
 ----
-For more information, documentation and professional support, you can visit http://ultralowlag.com 
+For more INFORMATION, DOCUMENTATION and PROFOSSIONAL SUPPORT & INSTALLATION, you can visit http://ultralowlag.com 
 
 
 License
