@@ -31,10 +31,17 @@ It publish stream based on channel id (room) which help more than one publishers
 Set username and password for all viewers and restrict one device (browser) to one account. It help to authenticate the viewer.
 
 
+
+Minimum requirements to run application
+----
+A) Nodejs v10+
+B) npm v6+
+C) SSL to call https and wss
+
 Installation & setup
 ----
 
-1) Download code and upload on your server OR in terminal use command sudo git clone. 
+1) Download code and upload on your server OR in terminal use command sudo git clone https://github.com/savsofts/ultralowlag-broadcast 
 2) open config.js and change your domain name
 3) go to folder server and open config.js and change your domain name
 4) now to install run following commands in terminal
