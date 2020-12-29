@@ -34,9 +34,7 @@ Set username and password for all viewers and restrict one device (browser) to o
 
 Minimum requirements to run application
 ----
-A) Nodejs v10+
-B) npm v6+
-C) SSL to call https and wss
+Nodejs v10+, npm v6+, SSL to call https and wss
 
 Installation & setup
 ----
