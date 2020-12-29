@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Ok Page</title>
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+ 
+ 
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+</head>
+
+<body  >
+ 
+<div class="container-fluid">
+	<div class="row" style="margin-top:50px;">
+		<div class="col-2">
+		
+		</div>
+		<div class="col-8" >
+			<div class="connection">
+				<div class="form-group">
+					<label>Enter Channel ID </label>
+						<input type="text" class="form-control" value="" id="channel_id" placeholder="Channel ID" required>
+					</div>
+					<div class="form-group">
+						<button class="btn btn-primary" onClick="startWS();">Connect</button>
+				</div>
+			</div>
+			<div class="ok" style="display:none;">
+				 <div class="form-group">
+				 <h2 >Channel Connected: <span id="c_id"></span></h5><br><br>
+						<button class="btn btn-success btn-lg" id="okBtn" onClick="okBtn();" style="width:100%;">Say Ok</button>
+						<button class="btn btn-danger btn-lg" id="notOkBtn" onClick="notOkBtn();" style="width:100%;margin-top:40px;">Not Clear</button>
+				<br><br>
+				<p style="color:#666666;">Button disabled for 30 seconds on every click</button>
+				</div>
+			</div>
+		</div>
+		<div class="col-2">
+		
+		</div>
+	</div>
+</div>
+</body>
+<script>
+var ws;
+var setWSINT;
+function startWS(){
+	 
+   ws = new WebSocket('wss://s1.cdncast.host:1999?token='+channel_id.value);
+    // event emmited when connected
+    ws.onopen = function () {
+        console.log('websocket is connected ...');
+		try{
+		clearInterval(setWSINT);
+		}catch(ex){
+		console.log(ex);
+		}
+        // sending a send event to websocket server
+     //  ws.send("MSG"+$('#session_id').val()+"::"+btoa('Joined: '+$('#your_name').val()));
+	 $('.connection').css('display','none');
+	 $('.ok').css('display','inline');
+	 $('#c_id').html(channel_id.value);
+	 
+    }
+	
+	
+	ws.onclose = function(event) {
+	  console.log("WebSocket is closed now.");
+  setWSINT=setInterval(function(){ startWS(); },5000);
+	}
+	
+    // event emmited when receiving message 
+    ws.onmessage = function (ev) {
+		if(typeof ev.data =="string"){
+		// console.log(ev.data);
+		 
+		}
+	
+	}
+	
+}
+
+function okBtn(){
+var m=JSON.stringify({type:'ok'});
+ws.send(m);
+	$('#okBtn').attr('disabled',true);
+	$('#notOkBtn').attr('disabled',true);
+setTimeout(function(){
+$('#okBtn').attr('disabled',false);
+$('#notOkBtn').attr('disabled',false);
+},20000);	
+}
+
+
+function notOkBtn(){
+var m=JSON.stringify({type:'nok'});
+ws.send(m);
+	$('#notOkBtn').attr('disabled',true);
+setTimeout(function(){
+$('#notOkBtn').attr('disabled',false);
+},20000);
+}
+</script>
+</html>

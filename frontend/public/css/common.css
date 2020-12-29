@@ -1,0 +1,177 @@
+html,body{
+background-color: #091e3a;
+color:#ffffff;
+font-size:12px;
+font-family:arial;
+}
+
+#chatNotice{
+display:none;
+color:#fdff7b;
+font-size:15px;
+}
+
+.footer-bar{
+	padding: 10px;
+    background: #040b1e;
+    position: fixed;
+    width: 100%;
+    left: 0px;
+    bottom: 0px;
+    opacity: 0.9;
+	}
+	
+.deviceSelected{
+font-size:10px;
+color:#dddddd;
+}
+
+.streamInfo{
+	padding: 10px;
+    top: 10px;
+    left: 10px;
+    position: fixed;
+    background: #040b1e;
+    opacity: 0.3;
+	cursor:pointer;
+}
+
+.responseDiv{
+	position: fixed;
+    top: 10px;
+    left: 60%;
+    opacity: 0.2;
+}
+.responseDiv .statRow{
+	margin-top:5px;
+}
+
+.listPeers{
+	background-color: #091e3a;
+position:fixed;
+z-index:1000; 
+top:160px;
+right:10px;
+padding:2px;
+border:1px solid #dddddd;
+opacity: 0.9;
+	cursor:pointer;	
+	height:500px;
+	overflow-y:auto;
+	display:none;
+width:250px;
+}
+
+.chat_div{
+	background-color: #091e3a;
+position:fixed;
+z-index:1000; 
+top:160px;
+right:10px;
+padding:2px;
+border:1px solid #dddddd;
+opacity: 0.9;
+	cursor:pointer;	
+	height:500px;
+	 
+	display:none;
+width:250px;	
+	
+}
+
+
+.usersList{
+	background-color: #091e3a;
+position:fixed;
+z-index:1000; 
+top:160px;
+right:10px;
+padding:2px;
+border:1px solid #dddddd;
+opacity: 0.9;
+	cursor:pointer;	
+	height:500px;
+	overflow-y:auto;
+display:none;
+width:250px;	
+}
+.peerName{
+	background: #040b1e;
+	padding:4px;
+	margin-top:4px;
+	color:#ffffff;
+	font-family:arial;
+	font-size:11px;
+}
+.listPeers:hover{
+	opacity:0.9;
+}
+
+.authInfo{
+	width:170px;
+	padding: 10px;
+    top: 10px;
+    right: 10px;
+    position: fixed;
+    background: #eae171;
+    opacity: 0.6;
+	 color:#212121;
+}
+
+.authInfo:hover{
+opacity:0.8;
+}
+.streamInfo:hover{
+opacity:0.8;
+}
+.title{
+    font-size: 14px;
+	}
+	
+.btn-round{
+ 
+	}
+.deviceSelected{
+color:#666666; 
+}
+.modal{
+color:#212121;
+}
+
+.right-side{
+	float:right;
+}
+.user-row{
+	padding: 2px;
+    background: #33878b;
+    margin-top: 2px;
+}
+
+.message{
+	padding: 2px;
+    background: #33878b;
+    margin-top: 2px;
+	color:#ffffff;
+	font-size:12px;
+	font-family:arial;
+}
+
+.chat_content{
+	padding: 4px;
+    overflow-y: auto;
+    height: 435px;
+	overflow-y:auto;
+}
+
+.input-box{
+	width:180px;
+}
+
+#chatBtn{
+	display:none;
+}
+
+.message-label{
+	color: #dad6d6;
+    font-size: 10px;
+}

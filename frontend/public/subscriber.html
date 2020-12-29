@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Demo App</title>
+  <script type="text/javascript" src="js/socket.io.js"></script>
+  <script type="text/javascript" src="js/mediasoup-client.min.js"></script>
+  <script type="text/javascript" src="js/subscriber.js"></script>
+  <script type="text/javascript" src="js/processor2.js"></script>	
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+ 
+ 
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+   
+  <style>
+#c2 {
+        background-image: url(/bg/bg3.png);
+        background-repeat: no-repeat;
+      }
+#viewer{
+position:fixed;
+max-width:200px;
+top:10px;
+right:10px;
+max-height:200px;
+}
+</style> 
+</head>
+
+<body  >
+ 
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12">
+ 
+			<div id="container"></div>
+  <canvas id="c1" width="640" height="480" style="display:none;"></canvas>
+ <canvas id="c2" width="640" height="480"  style="display:none;"></canvas>
+<canvas id="c3" width="640" height="480" style="display:none;"></canvas>
+		</div>
+	</div>
+</div>
+ 
+ 
+
+ <div id="viewer">
+ 
+ </div>
+
+ <div class="chat_div">
+	<div class="title">Chat</div>
+	<div class="chat_content"></div>
+	<div class="message-box">
+		<input type="text" class="input-box" placeholder="Type message here" id="inputBox" > <i class="fa fa-paper-plane" onClick="sendMessage();"></i>
+	</div>
+ </div>
+
+
+
+ 
+ 		<div class="footer-bar">
+			<div class="row">
+				<div class="col-2">	
+				<input type="text" value="" id="subChannel" class="form-control" placeholder="Enter Channel ID"/>				
+						
+				</div>
+				<div class="col-6">	
+				<button class="btn btn-success" onclick="iniRoom();" id="connectBtn" >Connect Channel</button>
+				<button class="btn btn-danger" onclick="leaveChannel();" id="leaveBtn" style="display:none;">Leave Channel</button>
+	
+						<label for="muted"><input type="checkbox" id="muted" checked> Muted</label></label>&nbsp;&nbsp;
+						<button class="btn btn-secondary" onclick="fullscreen();" >Full Screen</button>&nbsp;&nbsp;
+						  <button class="btn btn-secondary  " onClick="chatBox();"  id="chatBtn"><i class="fa fa-comment"></i> Chat  <span id='chatNotice'>0</span></button>
+                     
+	
+				</div>
+				<div class="col-4">	
+				 <button id="startCam" style="display:none;">
+				 <button id="stopCam" style="display:none;">
+				 
+				</div>
+				
+			</div>
+		</div>
+		
+ 				<div class="modal" id="settingModal" tabindex="-1" role="dialog">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title">Settings</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						
+					 
+						<div class="form-group">
+						<label>Your Name:</label>
+						 <input type="text" id="yourName" value="Test user"  class="form-control">
+						 
+						</div>
+						 
+						 
+						
+					  </div>
+					  <div class="modal-footer">
+						<button type="button" class="btn btn-primary">Save changes</button>
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<input type="hidden" id="u_username" value="{USERNAME}">
+				<input type="hidden" id="u_password" value="{PASSWORD}">
+		<script>
+	 
+		function settingModal(){
+			$('#settingModal').modal('show');
+		}
+
+		function fullscreen(){
+		if(video.length ==1){
+			 if (video.requestFullscreen) {
+				video.requestFullscreen();
+			  } else if (video.webkitRequestFullscreen) { /* Safari */
+				video.webkitRequestFullscreen();
+			  } else if (video.msRequestFullscreen) { /* IE11 */
+				video.msRequestFullscreen();
+			  }
+		  }
+		}
+		
+		
+		
+var ws;	
+var setWSINT; 
+var filterBG=0;
+var bgType="fixed";
+var fixed_image_path;
+var r_min;
+		 var r_max;
+		 var g_min;
+		 var g_max;
+		 var b_min;
+		 var b_max;
+		 var flayer;
+function startWS(){
+	 
+   ws = new WebSocket('wss://'+document.location.hostname+':1999?token='+subChannel.value);
+    // event emmited when connected
+    ws.onopen = function () {
+        console.log('websocket is connected ...');
+		try{
+		clearInterval(setWSINT);
+		}catch(ex){
+		console.log(ex);
+		}
+        // sending a send event to websocket server
+     //  ws.send("MSG"+$('#session_id').val()+"::"+btoa('Joined: '+$('#your_name').val()));
+	 var m=JSON.stringify({type:'bgInfo'});
+		ws.send(m);
+    }
+	
+ 
+	ws.onclose = function(event) {
+	  console.log("WebSocket is closed now.");
+  setWSINT=setInterval(function(){ startWS(); },5000);
+	}
+	
+    // event emmited when receiving message 
+    ws.onmessage = function (ev) {
+		if(typeof ev.data =="string"){
+		console.log(ev.data);
+		var jm=JSON.parse(ev.data);
+			if(jm.type=="bgInfo2"){
+		  r_min=jm.r_min;
+		  r_max=jm.r_max;
+		  g_min=jm.g_min;
+		  g_max=jm.g_max;
+		  b_min=jm.b_min;
+		  b_max=jm.b_max;
+		  flayer=jm.layer;
+		  
+			$('#c2').css('background-image', 'url(' + jm.fixed_image_path + ')');
+			filterBG=jm.bgStatus;
+			bgType=jm.bgType;
+			fixed_image_path=jm.fixed_image_path;
+			if(filterBG==1){
+			$('#c2').css('display','inline');
+		$('#container').css('display','none');
+			}else{
+			$('#c2').css('display','none');
+		$('#container').css('display','inline');
+			}
+			
+			
+			}
+			if(jm.type=="controlOn"){
+				if(jm.peer_name==peer_name){
+					$('#startCam').click();
+				}
+			}
+			if(jm.type=="controlOff"){
+				if(jm.peer_name==peer_name){
+					$('#stopCam').click();
+				}
+			}
+			if(jm.type=="message"){
+			var md=getDateTime();
+			var msg="<div class='message'>"+atob(jm.msg)+"<div class='message-label'>"+md+"</div></div>";
+			 
+			$('.chat_content').append(msg);
+			$('.chat_content').scrollTop(10000);
+			if($('.chat_div').css('display')=="none"){
+				$('#chatNotice').html(parseInt($('#chatNotice').html())+1);
+				$('#chatNotice').css('display','inline');
+				}
+			}
+			
+			
+		}
+	
+	}
+	
+}
+
+
+
+function leaveChannel(){
+location.reload();
+}
+
+function chatBox(){
+ 
+$('.chat_div').toggle();
+
+	if($('.chat_div').css('display') != 'none'){
+		$('#chatNotice').css('display','none');
+		$('#chatNotice').html('0');
+	}
+}
+
+
+function sendMessage(){
+var msg=$('#inputBox').val();
+	if(msg != ""){
+	var m=JSON.stringify({type:'message',username:'user',msg:btoa(msg)});
+	 ws.send(m);
+	}
+	$('#inputBox').val('');
+}
+
+
+
+
+function getDateTime() {
+        var now     = new Date(); 
+        var year    = now.getFullYear();
+        var month   = now.getMonth()+1; 
+        var day     = now.getDate();
+        var hour    = now.getHours();
+        var minute  = now.getMinutes();
+        var second  = now.getSeconds(); 
+        if(month.toString().length == 1) {
+             month = '0'+month;
+        }
+        if(day.toString().length == 1) {
+             day = '0'+day;
+        }   
+        if(hour.toString().length == 1) {
+             hour = '0'+hour;
+        }
+        if(minute.toString().length == 1) {
+             minute = '0'+minute;
+        }
+        if(second.toString().length == 1) {
+             second = '0'+second;
+        }   
+        var dateTime = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;   
+         return dateTime;
+    }
+	
+	
+	
+	var inputi = document.getElementById("inputBox");
+
+// Execute a function when the user releases a key on the keyboard
+inputi.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    sendMessage();
+  }
+});
+</script>		
+ 
+</body>
+</html>

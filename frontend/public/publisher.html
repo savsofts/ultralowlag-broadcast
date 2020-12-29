@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Demo App</title>
+  <script type="text/javascript" src="js/socket.io.js"></script>
+  <script type="text/javascript" src="js/mediasoup-client.min.js"></script>
+  <script type="text/javascript" src="js/app.js"></script>
+  <script type="text/javascript" src="js/processor.js"></script>		
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
+ 
+ 
+<script  src="https://code.jquery.com/jquery-3.5.1.js" ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="css/common.css" />
+   
+ <style>
+#c2 {
+        background-image: url(/bg/bg3.png);
+        background-repeat: no-repeat;
+      }
+.bg-thumb{
+cursor:pointer;
+}
+#viewer{
+position:fixed;
+max-width:200px;
+top:10px;
+right:10px;
+max-height:200px;
+}
+.viewer_speaking{
+background: #d1811e;
+    font-size: 10px;
+    padding: 2px;
+    color: #ffffff;
+}
+ 
+
+
+</style>	  
+</head>
+
+<body  >
+ 
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-12">
+ 
+			<div id="container"></div>
+ 
+ <canvas id="c1" width="640" height="480" style="display:none;"></canvas>
+ <canvas id="c2" width="640" height="480"  style="display:none;"></canvas>
+<canvas id="c3" width="640" height="480" style="display:none;"></canvas>
+ 	  
+		</div>
+	</div>
+</div>
+ 
+<div class="streamInfo">
+	<div class="title">Statistics (Camera)</div>
+	 <div class="statRow">Video bandwidth: <span id="ivideokBps">0</span>kB/s <span id="ivideokBps_type"></span></div>
+	<div class="statRow">Audio bandwidth: <span id="iaudiokBps">0</span>kB/s <span id="iaudiokBps_type"></span></div>
+	<br>
+	<div class="title">Statistics (Screen Sharing)</div>
+	 <div class="statRow">Video bandwidth: <span id="ivideokBpsS">0</span>kB/s <span id="ivideokBpsS_type"></span></div>
+	 
+</div>
+
+<div class="authInfo">
+	<div class="title">Session info</div>
+	<div class="statRow">Channel ID: <span id="channel_id"></span></div>
+	 
+	 
+</div>
+
+<div class="listPeers">
+<div class="title">Subscriber List (Online) (<span id="nop">0</span>) 
+ </div>
+<div class="viewer_speaking"></div>
+</div>
+
+<div class="usersList">
+<div class="title">Subscriber/User (<span id="nop2">0</span>) <a href="javascript:add_user();" class="btn btn-info btn-sm">Add new</a> 
+ </div>
+<div class="users_list"></div>
+</div>
+
+
+ <div id="viewer">
+ 
+ </div>
+ 
+ <div class="chat_div">
+	<div class="title">Chat</div>
+	<div class="chat_content"></div>
+	<div class="message-box">
+		<input type="text" class="input-box" placeholder="Type message here" id="inputBox" > <i class="fa fa-paper-plane" onClick="sendMessage();"></i>
+	</div>
+ </div> 
+ 
+<div class="footer-bar">
+		
+		
+<div class="row">
+				<div class="col-1">		
+		
+					<div class="dropdown">
+					  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-camera"></i> Camera
+					  </button>
+					  <div class="dropdown-menu" id='videoSource' aria-labelledby="dropdownMenuButton">
+						 
+					  </div>
+					</div>
+					<span id="vdSelect" class="deviceSelected"></span>
+					<input type="hidden" id="vdDeviceId" value="">
+				</div>
+				<div class="col-1">		
+		
+					<div class="dropdown">
+					  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-microphone"></i> Mic
+					  </button>
+					  <div class="dropdown-menu" id='audioSource' aria-labelledby="dropdownMenuButton">
+						 
+					  </div>
+					</div>
+						<span id="adSelect" class="deviceSelected"></span>
+						<input type="hidden" id="adDeviceId" value="">
+				</div>
+								
+				<div class="col-2">	
+					<div class="dropdown">
+						<button class="btn btn-secondary dropdown-toggle" type="button" id="screenSharingMainBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-share-square"></i> Screen Sharing
+						
+					  </button>
+					  
+					  <div class="dropdown-menu" id='audioScr' aria-labelledby="dropdownMenuButton">
+						 <a class='dropdown-item' href='#' id="scrMicAudio">With mic audio</a>
+					  	 <a class='dropdown-item' href='#' id="scrComAudio" >With computer audio</a>
+					  </div>
+					</div>
+						 
+				</div>	
+				 
+				<div class="col-7" style="text-align:right;">	
+						
+						<button class="btn btn-success btn-round" id="capture" onclick="iniRoom();">Connect</button>
+                       <button class="btn btn-danger btn-round" id="leaveBtn" onclick="leaveChannel();" style="display:none;">Leave Channel</button>
+                        <button class="btn btn-success btn-round" id="startCam"   style="display:none;">Start</button>
+                        <button class="btn btn-warning btn-round"  id="stopCapture" style="display:none;" >Stop</button>
+						<button class="btn btn-secondary  " onClick="settingModal();"><i class="fa fa-cogs"></i> Settings</button>
+						<button class="btn btn-secondary  " onClick="greenModal();"><i class="fa fa-laptop"></i> Background</button>
+                       <button class="btn btn-secondary  " onClick="userList();"><i class="fa fa-users"></i> Online</button>
+                       <button class="btn btn-secondary  " onClick="userList2();"><i class="fa fa-users"></i> Users</button>
+                       <button class="btn btn-secondary  " onClick="chatBox();" id="chatBtn" ><i class="fa fa-comment"></i> Chat <span id='chatNotice'>0</span></button>
+                         
+				 
+
+				</div>		
+				<div class="col-1" style="text-align:right;">	
+						
+
+				</div>	
+				
+
+</div>
+
+			 
+</div>
+
+
+
+
+				<div class="modal" id="add_user" tabindex="-1" role="dialog">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title" id="user-title"></h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						<div class="form-group">
+						<label>Username</label>
+						<input type="text" id="user_edit" class="form-control" placeholder="Username" required >
+						
+						</div>
+					
+						<div class="form-group">
+						<label>Password</label>
+						<input type="password" id="password_edit" class="form-control" placeholder="Password" required >
+						<input type="hidden" id="user_id" value="0">
+						</div>
+					
+						<div class="form-group">
+						 <div id="user_msg"></div>
+						<button class="btn btn-primary" onClick="submitUser();">Submit</button>
+						
+						</div>
+					
+					  </div>
+					  <div class="modal-footer">
+					 
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					  </div>
+					</div>
+				  </div>
+				</div>
+
+
+				<div class="modal" id="settingModal" tabindex="-1" role="dialog">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title">Settings</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						
+					 
+						<div class="form-group">
+						<label>Your Name:</label>
+						 <input type="text" id="yourName" value="Host user"  class="form-control">
+						 
+						</div>
+						<div class="form-group">
+						<label>Width:</label>
+						 <input type="text" id="v_width" value="640"  class="form-control"   >
+						 
+						<label>height: </label> <input type="text" id="v_height" value="480"  class="form-control"  >
+						 
+						</div>
+						
+						<div class="form-group">
+						<label>FrameRate</label>
+						<select name="" id="fps"  class="form-control">
+                        <option value="default" selected="selected" >Default</option>
+                        <option value="30" >30</option>
+                        <option value="25">25</option>
+                        <option value="20">20</option>
+                        <option value="15">15</option>
+                        <option value="10">10</option>
+                        
+                        </select>
+						</div>
+						
+						
+						
+						<div class="form-group">
+						<label>Channel ID:</label>
+						<input type="text" value="test" id="pubChannel" onBlur="changeChannelId(this.value);" />
+						</div>
+						 
+						
+					  </div>
+					  <div class="modal-footer">
+					 
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					  </div>
+					</div>
+				  </div>
+				</div>
+
+
+
+				<div class="modal" id="greenModal" tabindex="-1" role="dialog">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title">Background</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+					<div class="form-group">
+					 <label>Background Filter</label>
+					 <select id="allowBG"   class="form-control" onChange="allowBG(this.value);">
+					 <option value="enable"  >Enable</option>
+					 <option value="disable" selected >Disable</option>
+					 </select>
+					  </div> 	
+					 <div class="form-group">
+					 <p style="color:red;">Select RBG color range of background you are using. (Recommend green background with uniform light focus)</p>
+						<label>Color filter Minimum</label>
+						<br>
+						
+						
+						R&#62;<input type="text" id="r_min" style="width:50px;" onChange="setRGB('r_min',this.value);"> &nbsp;&nbsp;
+						G&#62;<input type="text" id="g_min" style="width:50px;"  onChange="setRGB('g_min',this.value);"> &nbsp;&nbsp;
+						B&#62;<input type="text" id="b_min" style="width:50px;"  onChange="setRGB('b_min',this.value);"> &nbsp;&nbsp;
+						
+						<input type="color" id="min_rgb" value="" onchange="change_min_rgb(this.value);">
+						</div>
+				 
+					 <div class="form-group">
+						<label>Color filter Maximum</label>
+						<br>
+						R&#60;<input type="text" id="r_max" style="width:50px;"  onChange="setRGB('r_max',this.value);"> &nbsp;&nbsp;
+						G&#60;<input type="text" id="g_max" style="width:50px;"  onChange="setRGB('g_max',this.value);"> &nbsp;&nbsp;
+						B&#60;<input type="text" id="b_max" style="width:50px;"  onChange="setRGB('b_max',this.value);"> &nbsp;&nbsp;
+						<input type="color" id="max_rgb" value="" onchange="change_max_rgb(this.value);">
+						
+						<br>
+						
+						</div>
+				 
+					 <div class="form-group">
+					 <label>Background type</label>
+					 <select id="bgType" onChange="changeBgType(this.value);" class="form-control">
+					 <option value="fixed" selected >Fixed Background</option>
+					 <option value="scr">Screen Sharing</option>
+					 </select>
+					 Fixed background image path (.png only) 
+					 <input type="text" id="fixed_image_path" class="form-control" value="/bg/bg3.png" onBlur="changeBg(this.value);">
+					</div>
+					
+					 <div class="form-group">
+							
+							<img src="/bg/bg2.png" class="bg-thumb" style="width:100px;" onClick="setBgVal(this.src)"> &nbsp;&nbsp;
+						 <img src="/bg/bg3.png"  class="bg-thumb"  style="width:100px;"  onClick="setBgVal(this.src)"> &nbsp;&nbsp;
+						  
+					</div>
+					<div class="form-group" style="display:none;">
+					<label>Filter Layer</label>
+						<select id="filterLayer" onChange="changeLayer(this.value);" class="form-control">
+						 <option value="camera" selected >Camera</option>
+						 <option value="scr">Screen Sharing</option>
+						 </select>
+					 </div>	 
+						
+					  </div>
+					  <div class="modal-footer">
+					 <span id="bgSettingSuccess"></span>
+						<button type="button" class="btn btn-primary"  onClick="saveBG();">Save</button>
+					  	<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					  </div>
+					</div>
+				  </div>
+				</div>
+				<input type="hidden" id="u_username" value="{USERNAME}">
+				<input type="hidden" id="u_password" value="{PASSWORD}">
+		<script>
+		 
+		
+		var vdi=0;
+		var adi=0;
+			 navigator.mediaDevices.enumerateDevices().then(function (devices) {
+			 
+					for(var i = 0; i < devices.length; i ++){
+						var device = devices[i];
+						if (device.kind === 'videoinput' && device.label !='screen-capture-recorder') {
+							 
+							var text = device.label || 'camera ' + (i + 1);
+							
+							// var h="<a class='dropdown-item' href=javascript:setVd('"+device.deviceId+"','"+device.label+"'); >"+text+"</a>";
+							var lin='setVd("'+device.deviceId+'","'+device.label+'")';
+							var h="<a class='dropdown-item' href='javascript:"+lin+";' >"+text+"</a>";
+							
+							
+							document.querySelector('#videoSource').innerHTML+=h;
+							if(vdi==0){
+							$('#vdSelect').html(text.substring(0,15));
+							$('#vdDeviceId').val(device.deviceId);
+							}
+							vdi+=1;
+						}
+						if (device.kind === 'audioinput') {
+							 
+							var text = device.label || 'mic ' + (i + 1);
+							var lin='setAd("'+device.deviceId+'","'+device.label+'")';
+							var h="<a class='dropdown-item' href='javascript:"+lin+";' >"+text+"</a>";
+							 
+							document.querySelector('#audioSource').innerHTML+=h;
+							if(adi==0){
+							$('#adSelect').html(text.substring(0,15));
+							$('#adDeviceId').val(device.deviceId);
+							}
+							adi+=1;
+						}
+					};
+				});
+				
+				
+		function settingModal(){
+			$('#settingModal').modal('show');
+		}
+
+		function greenModal(){
+			$('#greenModal').modal('show');
+		}
+
+		function setAd(id,l){
+		$('#adSelect').html(l.substring(0,15));
+		$('#adDeviceId').val(id);
+		}
+		function setVd(id,l){
+		$('#vdSelect').html(l.substring(0,15));
+		$('#vdDeviceId').val(id);
+		}
+		
+function randomInt(min, max) {
+	return min + Math.floor((max - min) * Math.random());
+}
+
+$(document).on('change','#showPass',function(){
+console.log('in');
+	if($('#showPass').is(':checked')){
+		$('#pubPassword').attr('type','text');
+	}else{
+		$('#pubPassword').attr('type','password');
+	}
+});	
+
+
+var channel_id=randomInt(111111,999999);
+ $('#channel_id').html(channel_id);
+ $('#pubChannel').val(channel_id);
+
+ 
+ 
+ 
+ 
+ 		
+var ws;	
+var setWSINT;
+var r_min=0;
+var g_min=0;
+var b_min=0;
+var filterBG=0;
+var flayer="camera";
+
+$('#r_min').val(r_min);
+$('#g_min').val(g_min);
+$('#b_min').val(b_min);
+
+var r_max=50;
+var g_max=50;
+var b_max=50;
+$('#r_max').val(r_max);
+$('#g_max').val(g_max);
+$('#b_max').val(b_max);
+
+var bgType="fixed";
+
+function startWS(){
+	 
+   ws = new WebSocket('wss://'+document.location.hostname+':1999?token='+pubChannel.value);
+    // event emmited when connected
+    ws.onopen = function () {
+        console.log('websocket is connected ...');
+		try{
+		clearInterval(setWSINT);
+		}catch(ex){
+		console.log(ex);
+		}
+        // sending a send event to websocket server
+     //  ws.send("MSG"+$('#session_id').val()+"::"+btoa('Joined: '+$('#your_name').val()));
+    }
+	
+	
+	ws.onclose = function(event) {
+	  console.log("WebSocket is closed now.");
+  setWSINT=setInterval(function(){ startWS(); },5000);
+	}
+	
+    // event emmited when receiving message 
+    ws.onmessage = function (ev) {
+		if(typeof ev.data =="string"){
+			var jm=JSON.parse(ev.data);
+			if(jm.type=="bgInfo"){
+			var m=JSON.stringify({type:'bgInfo2',bgStatus:filterBG,bgType:document.getElementById('bgType').value,fixed_image_path:document.getElementById('fixed_image_path').value,r_min:document.getElementById('r_min').value,r_max:document.getElementById('r_max').value,g_min:document.getElementById('g_min').value,g_max:document.getElementById('g_max').value,b_min:document.getElementById('b_min').value,b_max:document.getElementById('b_max').value,layer:document.getElementById('filterLayer').value});
+			ws.send(m);
+			}
+			if(jm.type=="message"){
+			var md=getDateTime();
+			var msg="<div class='message'>"+atob(jm.msg)+"<div class='message-label'>"+md+"</div></div>";
+				$('.chat_content').append(msg);
+				$('.chat_content').scrollTop(10000);
+				if($('.chat_div').css('display')=="none"){
+				$('#chatNotice').html(parseInt($('#chatNotice').html())+1);
+				$('#chatNotice').css('display','inline');
+				}
+			}
+			 
+		}
+	
+	}
+	
+}
+
+
+function resetOk(){
+$('#cok').html('0');
+$('#nok').html('0');
+}
+
+
+
+ 
+function setRGB(k,v){
+if(k=="r_min"){ r_min=v; }
+if(k=="g_min"){ g_min=v; }
+if(k=="b_min"){ b_min=v; }
+if(k=="r_max"){ r_max=v; }
+if(k=="g_max"){ g_max=v; }
+if(k=="b_max"){ b_max=v; }
+
+$('#min_rgb').val(parseColor("rgb("+$('#r_min').val()+","+$('#g_min').val()+","+$('#b_min').val()+")"));
+$('#max_rgb').val(parseColor("rgb("+$('#r_max').val()+","+$('#g_max').val()+","+$('#b_max').val()+")"));
+	
+}
+
+
+function saveBG(){
+localStorage.setItem('r_min',$('#r_min').val());
+localStorage.setItem('g_min',$('#g_min').val());
+localStorage.setItem('b_min',$('#b_min').val());
+
+localStorage.setItem('r_max',$('#r_max').val());
+localStorage.setItem('g_max',$('#g_max').val());
+localStorage.setItem('b_max',$('#b_max').val());
+
+localStorage.setItem('fixed_image_path',$('#fixed_image_path').val());
+$('#bgSettingSuccess').html('Changes saved successfully!');
+setTimeout(function(){
+$('#bgSettingSuccess').html(''); 
+},4000);
+
+}
+
+try{
+$('#r_min').val(localStorage.getItem('r_min'));
+$('#g_min').val(localStorage.getItem('g_min'));
+$('#b_min').val(localStorage.getItem('b_min'));
+$('#r_max').val(localStorage.getItem('r_max'));
+$('#g_max').val(localStorage.getItem('g_max'));
+$('#b_max').val(localStorage.getItem('b_max'));
+
+$('#fixed_image_path').val(localStorage.getItem('fixed_image_path'));
+$('#c2').css('background-image', 'url(' + $('#fixed_image_path').val() + ')');
+}catch(ex){
+console.log(ex);
+}
+
+  
+try{
+	$('#min_rgb').val(parseColor("rgb("+$('#r_min').val()+","+$('#g_min').val()+","+$('#b_min').val()+")"));
+	$('#max_rgb').val(parseColor("rgb("+$('#r_max').val()+","+$('#g_max').val()+","+$('#b_max').val()+")"));
+}catch(ex){
+
+}
+
+if($('#allowBG').val()=="enable"){
+filterBG=1;
+}
+
+function changeBgType(v){
+	if(v=="fixed"){
+		
+	}else{
+		if($('#screenSharingMainBtn').css('display') != "none"){
+			alert("Please start screen sharing to change background type");
+		}else{
+			
+		}
+	}
+	
+	try{
+			var m=JSON.stringify({type:'bgInfo2',bgStatus:filterBG,bgType:document.getElementById('bgType').value,fixed_image_path:document.getElementById('fixed_image_path').value,r_min:document.getElementById('r_min').value,r_max:document.getElementById('r_max').value,g_min:document.getElementById('g_min').value,g_max:document.getElementById('g_max').value,b_min:document.getElementById('b_min').value,b_max:document.getElementById('b_max').value,layer:document.getElementById('filterLayer').value});
+		ws.send(m);
+	}catch(ex){
+		console.log(ex);
+	}
+}
+
+
+
+function changeLayer(v){
+	 
+flayer=v;
+	try{
+			var m=JSON.stringify({type:'bgInfo2',bgStatus:filterBG,bgType:document.getElementById('bgType').value,fixed_image_path:document.getElementById('fixed_image_path').value,r_min:document.getElementById('r_min').value,r_max:document.getElementById('r_max').value,g_min:document.getElementById('g_min').value,g_max:document.getElementById('g_max').value,b_min:document.getElementById('b_min').value,b_max:document.getElementById('b_max').value,layer:document.getElementById('filterLayer').value});
+		ws.send(m);
+	}catch(ex){
+		console.log(ex);
+	}
+
+}
+
+
+function changeBg(v){
+ 
+$('#c2').css('background-image', 'url(' + v + ')');
+
+try{
+// processor=null;
+}catch(ex){
+ 
+}
+// processor.doLoad();
+
+try{
+			var m=JSON.stringify({type:'bgInfo2',bgStatus:filterBG,bgType:document.getElementById('bgType').value,fixed_image_path:document.getElementById('fixed_image_path').value,r_min:document.getElementById('r_min').value,r_max:document.getElementById('r_max').value,g_min:document.getElementById('g_min').value,g_max:document.getElementById('g_max').value,b_min:document.getElementById('b_min').value,b_max:document.getElementById('b_max').value,layer:document.getElementById('filterLayer').value});
+		ws.send(m);
+	}catch(ex){
+		console.log(ex);
+	} 
+}
+
+
+function parseColor(color) {
+    var arr=[]; color.replace(/[\d+\.]+/g, function(v) { arr.push(parseFloat(v)); });
+    return "#" + arr.slice(0, 3).map(toHex).join("");
+}
+function toHex(int) {
+    var hex = int.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+
+function change_min_rgb(v){
+	var rgb=hexToRgb(v);
+	$('#r_min').val(rgb.r);
+	$('#g_min').val(rgb.g);
+	$('#b_min').val(rgb.b);
+}
+
+function change_max_rgb(v){
+	var rgb=hexToRgb(v);
+	$('#r_max').val(rgb.r);
+	$('#g_max').val(rgb.g);
+	$('#b_max').val(rgb.b);
+}
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+
+function allowBG(v){
+	if(v=="enable"){
+		if($('#c2').css('display')!="none"){
+		// already enabled.. do nothing
+		
+		}else{
+		// not enabled, call processor
+		filterBG=1;
+		$('#c2').css('display','inline');
+		
+		}
+	$('#container').css('display','none');
+	
+	}else{
+		if($('#c2').css('display')!="none"){
+		// enabled.. stop filterning
+		filterBG=0;
+		$('#c2').css('display','none');
+		}
+	$('#container').css('display','inline');
+	}
+	
+	try{
+			var m=JSON.stringify({type:'bgInfo2',bgStatus:filterBG,bgType:document.getElementById('bgType').value,fixed_image_path:document.getElementById('fixed_image_path').value,r_min:document.getElementById('r_min').value,r_max:document.getElementById('r_max').value,g_min:document.getElementById('g_min').value,g_max:document.getElementById('g_max').value,b_min:document.getElementById('b_min').value,b_max:document.getElementById('b_max').value,layer:document.getElementById('filterLayer').value});
+			ws.send(m);
+	}catch(ex){
+		console.log(ex);
+	}
+			
+}
+
+ 
+ $(document).on('click','.user-control',function(){
+ $('.user-control-off').click();
+ $(this).removeClass('user-control');
+ $(this).removeClass('fa-camera');
+ $(this).addClass('user-control-off');
+ $(this).addClass('fa-ban');
+ var pn=$(this).attr('data-pname');
+ var peer_n=atob(pn).split('|');
+ $('.viewer_speaking').html(peer_n[0]+' is connected..');
+ var m=JSON.stringify({type:'controlOn',peer_name:pn});
+ ws.send(m);
+ });
+ $(document).on('click','.user-control-off',function(){
+ $(this).addClass('user-control');
+ $(this).addClass('fa-camera');
+ $(this).removeClass('user-control-off');
+ $(this).removeClass('fa-ban');
+ var pn=$(this).attr('data-pname');
+ var m=JSON.stringify({type:'controlOff',peer_name:pn});
+ ws.send(m);
+ $('.viewer_speaking').html('');
+ });
+ 
+ 
+ 
+var inputi = document.getElementById("inputBox");
+
+// Execute a function when the user releases a key on the keyboard
+inputi.addEventListener("keyup", function(event) {
+  // Number 13 is the "Enter" key on the keyboard
+  if (event.keyCode === 13) {
+    // Cancel the default action, if needed
+    event.preventDefault();
+    // Trigger the button element with a click
+    sendMessage();
+  }
+});
+  
+  
+ function setBgVal(v){
+ $('#fixed_image_path').val(v);
+ }
+ 
+ 
+ function leaveChannel(){
+location.reload();
+}
+
+
+function userList(){
+$('.listPeers').toggle();
+$('.usersList').hide();
+$('.chat_div').hide();
+}
+
+
+function userList2(){
+getUserList();
+$('.usersList').toggle();
+$('.listPeers').hide();
+$('.chat_div').hide();
+}
+
+
+
+function add_user(){
+$('#add_user').modal('show');
+$('#user-title').html("Add new user");
+$('#user_id').val('0');
+}
+
+function editUser(id,username,p){
+$('#add_user').modal('show');
+$('#user-title').html("Edit user ("+username+")");
+$('#user_id').val(id);
+$('#user_edit').val(username);
+$('#password_edit').val(p);
+}
+
+
+function submitUser(){
+	var username=$('#user_edit').val();
+	var password=$('#password_edit').val();
+	var id=$('#user_id').val();
+	  
+	$.post('submitUser',{username:username,password:password,id:id},function(data){
+	 if(data=="Done"){
+		$('#user_msg').html("<div class='alert alert-success'>Request submitted successfully</div>");
+	 }else{
+			$('#user_msg').html("<div class='alert alert-danger'>"+data+"</div>");
+	 }
+	 getUserList();
+	});
+
+}
+
+
+
+function removeUser(id){
+	  if(confirm("Do you want to remove user?")){ 
+	$.post('removeUser',{id:id},function(data){
+	  console.log(data);
+	  getUserList();
+	});
+	}
+
+}
+
+
+function getUserList(){
+$('.users_list').html('Processing...');
+	$.post('getUserList',function(data){
+	if(data.trim() !="No user found"){
+	var users=JSON.parse(data.trim());
+	$('.users_list').html('');
+	$.each(users,function(index,value){
+	var row="<div class='user-row' >"+value.username+" <span class='right-side'> &nbsp;&nbsp;  <i class='fa fa-edit' title='Edit' onClick=editUser('"+value.id+"','"+value.username+"','"+value.password+"');></i> &nbsp;&nbsp;  <i class='fa fa-times' title='Remove' onClick=removeUser('"+value.id+"');></i></div></div>";
+	$('.users_list').append(row);
+	
+	});
+	
+	
+	
+	}else{
+	$('.users_list').html('No user found');
+	}
+	});
+}
+
+
+function changeChannelId(v){
+$('#channel_id').html(v);
+}
+
+
+function chatBox(){
+$('.usersList').hide();
+$('.listPeers').hide();
+$('.chat_div').toggle();
+	if($('.chat_div').css('display') != 'none'){
+		$('#chatNotice').css('display','none');
+		$('#chatNotice').html('0');
+	}
+}
+
+
+function sendMessage(){
+var msg=$('#inputBox').val();
+	if(msg != ""){
+		var m=JSON.stringify({type:'message',username:'admin',msg:btoa(msg)});
+	 ws.send(m);
+	}
+	$('#inputBox').val('');
+}
+
+
+
+ 
+
+
+
+
+function getDateTime() {
+        var now     = new Date(); 
+        var year    = now.getFullYear();
+        var month   = now.getMonth()+1; 
+        var day     = now.getDate();
+        var hour    = now.getHours();
+        var minute  = now.getMinutes();
+        var second  = now.getSeconds(); 
+        if(month.toString().length == 1) {
+             month = '0'+month;
+        }
+        if(day.toString().length == 1) {
+             day = '0'+day;
+        }   
+        if(hour.toString().length == 1) {
+             hour = '0'+hour;
+        }
+        if(minute.toString().length == 1) {
+             minute = '0'+minute;
+        }
+        if(second.toString().length == 1) {
+             second = '0'+second;
+        }   
+        var dateTime = year+'-'+month+'-'+day+' '+hour+':'+minute+':'+second;   
+         return dateTime;
+    }
+
+ 
+ 
+  
+ 
+ 
+
+		</script>
+		
+ 
+</body>
+</html>
