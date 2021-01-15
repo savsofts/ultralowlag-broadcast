@@ -173,6 +173,8 @@ function handleConsumer(consumer,peer) {
 					document.getElementById('container').appendChild(audio);
 					audio.play();
 				  }
+			}else if (consumer.appData.trackType == 'viewer'){
+				
 			}else{
 				
 				
@@ -217,8 +219,8 @@ $(document).on('click','#startCam',function(){
 	
 	  
 		var videoCons = {
-				width: 640,
-				height:480
+				width: document.getElementById('v_width').value,
+				height:document.getElementById('v_height').value
 				};
 	 
 	
@@ -234,6 +236,7 @@ $(document).on('click','#startCam',function(){
       const video = document.createElement('video');
       video.setAttribute('style', 'max-width: 170px;');
       video.setAttribute('id', 'viewerPreview');
+      video.setAttribute('controls', '');
       video.srcObject = localStream;
       document.getElementById('viewer').appendChild(video);
      video.play();

@@ -10,9 +10,9 @@
  
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
  
+<script  src="https://code.jquery.com/jquery-3.5.1.js" ></script>
  
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <link rel="stylesheet" type="text/css" href="css/common.css" />
    
@@ -65,17 +65,18 @@ max-height:200px;
  		<div class="footer-bar">
 			<div class="row">
 				<div class="col-2">	
-				<input type="text" value="" id="subChannel" class="form-control" placeholder="Enter Channel ID"/>				
-						
+				 			
+<select id="subChannel"  ><option value='' selected >Select Channel</option></select> 
+												
 				</div>
 				<div class="col-6">	
 				<button class="btn btn-success" onclick="iniRoom();" id="connectBtn" >Connect Channel</button>
 				<button class="btn btn-danger" onclick="leaveChannel();" id="leaveBtn" style="display:none;">Leave Channel</button>
 	
 						<label for="muted"><input type="checkbox" id="muted" checked> Muted</label></label>&nbsp;&nbsp;
-						<button class="btn btn-secondary" onclick="fullscreen();" >Full Screen</button>&nbsp;&nbsp;
+						<button class="btn btn-secondary" onclick="settingModal();" ><i class="fa fa-cogs"></i> Setting</button>&nbsp;&nbsp;
 						  <button class="btn btn-secondary  " onClick="chatBox();"  id="chatBtn"><i class="fa fa-comment"></i> Chat  <span id='chatNotice'>0</span></button>
-                     
+						
 	
 				</div>
 				<div class="col-4">	
@@ -101,15 +102,21 @@ max-height:200px;
 					 
 						<div class="form-group">
 						<label>Your Name:</label>
-						 <input type="text" id="yourName" value="Test user"  class="form-control">
+						 <input type="text" id="yourName" value=""  class="form-control">
 						 
 						</div>
 						 
+						 	<div class="form-group">
+						<label>Width:</label>
+						 <input type="text" id="v_width" value="640"  class="form-control"   >
 						 
+						<label>height: </label> <input type="text" id="v_height" value="480"  class="form-control"  >
+						 
+						</div>
 						
 					  </div>
 					  <div class="modal-footer">
-						<button type="button" class="btn btn-primary">Save changes</button>
+						<!-- <button type="button" class="btn btn-primary">Save changes</button>-->
 						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 					  </div>
 					</div>
@@ -258,6 +265,28 @@ var msg=$('#inputBox').val();
 
 
 
+
+
+function getChannelList(){
+var username=localStorage.getItem('username');
+ 	$.post('getChannelList2',{username:username},function(data){
+	if(data.trim() !="No channel found"){
+	var users=JSON.parse(data.trim());
+	 $('#subChannel').html("<option value=''>Select Channel</option>");
+	$.each(users,function(index,value){
+	 $('#subChannel').append("<option value='"+value.id+"'>"+value.channel_name+"</option>");
+	});
+	
+	 
+	}else{
+	 $('#subChannel').html("<option value=''>Select Channel</option>");
+	}
+	});
+}
+
+
+getChannelList();
+
 function getDateTime() {
         var now     = new Date(); 
         var year    = now.getFullYear();
@@ -299,6 +328,13 @@ inputi.addEventListener("keyup", function(event) {
     sendMessage();
   }
 });
+
+ 
+ $('#yourName').val(localStorage.getItem('username'));
+
+setTimeout(function(){
+window.location="https://s1.cdncast.host/login_user.html";
+},600000);
 </script>		
  
 </body>

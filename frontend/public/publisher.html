@@ -37,7 +37,9 @@ background: #d1811e;
     padding: 2px;
     color: #ffffff;
 }
- 
+#onlineU{
+display:none;
+} 
 
 
 </style>	  
@@ -59,7 +61,7 @@ background: #d1811e;
 	</div>
 </div>
  
-<div class="streamInfo">
+<div class="streamInfo" >
 	<div class="title">Statistics (Camera)</div>
 	 <div class="statRow">Video bandwidth: <span id="ivideokBps">0</span>kB/s <span id="ivideokBps_type"></span></div>
 	<div class="statRow">Audio bandwidth: <span id="iaudiokBps">0</span>kB/s <span id="iaudiokBps_type"></span></div>
@@ -69,7 +71,7 @@ background: #d1811e;
 	 
 </div>
 
-<div class="authInfo">
+<div class="authInfo" style="display:none;">
 	<div class="title">Session info</div>
 	<div class="statRow">Channel ID: <span id="channel_id"></span></div>
 	 
@@ -83,7 +85,11 @@ background: #d1811e;
 </div>
 
 <div class="usersList">
-<div class="title">Subscriber/User (<span id="nop2">0</span>) <a href="javascript:add_user();" class="btn btn-info btn-sm">Add new</a> 
+<div class="title">Subscriber/User (<span id="nop2">0</span>)  <a href="javascript:userList2();" class="btn btn-secondary btn-sm" style="float:right;">Close</a>
+<div style="clear:both;"></div>
+ <br>
+ <input type="text" id="searchUser" placeholder="search" style="width:150px;"> <a href="javascript:add_user();" class="btn btn-info btn-sm">Add new</a>
+ 
  </div>
 <div class="users_list"></div>
 </div>
@@ -148,22 +154,38 @@ background: #d1811e;
 				</div>	
 				 
 				<div class="col-7" style="text-align:right;">	
-						
+						<select id="pubChannel" onChange="changeChannelId(this.value);"><option value='' selected >Select Channel</option></select> 
 						<button class="btn btn-success btn-round" id="capture" onclick="iniRoom();">Connect</button>
                        <button class="btn btn-danger btn-round" id="leaveBtn" onclick="leaveChannel();" style="display:none;">Leave Channel</button>
                         <button class="btn btn-success btn-round" id="startCam"   style="display:none;">Start</button>
                         <button class="btn btn-warning btn-round"  id="stopCapture" style="display:none;" >Stop</button>
-						<button class="btn btn-secondary  " onClick="settingModal();"><i class="fa fa-cogs"></i> Settings</button>
-						<button class="btn btn-secondary  " onClick="greenModal();"><i class="fa fa-laptop"></i> Background</button>
-                       <button class="btn btn-secondary  " onClick="userList();"><i class="fa fa-users"></i> Online</button>
-                       <button class="btn btn-secondary  " onClick="userList2();"><i class="fa fa-users"></i> Users</button>
+						
+						
+						
+						
+						
+						
+						
+						 <button class="btn btn-secondary  " onClick="userList();" id="onlineU" ><i class="fa fa-users"></i> Online</button>
                        <button class="btn btn-secondary  " onClick="chatBox();" id="chatBtn" ><i class="fa fa-comment"></i> Chat <span id='chatNotice'>0</span></button>
                          
 				 
 
 				</div>		
 				<div class="col-1" style="text-align:right;">	
+					<div class="dropdown">
+						<button class="btn btn-secondary dropdown-toggle" type="button" id="screenSharingMainBtn" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-cogs"></i> Settings
 						
+					  </button>
+					  
+					  <div class="dropdown-menu" id='' aria-labelledby="dropdownMenuButton">
+						 <a class='dropdown-item' href='javascript:settingModal();'  >General Settings</a>
+					  	 <a class='dropdown-item' href='javascript:greenModal();'  >Background</a>
+					  	 <a class='dropdown-item' href='javascript:addChannel();'  >Manage Channel</a>
+					  	 <a class='dropdown-item' href='javascript:userList2();'  >Manage Users</a>
+					  </div>
+					</div>	
 
 				</div>	
 				
@@ -197,7 +219,13 @@ background: #d1811e;
 						<input type="password" id="password_edit" class="form-control" placeholder="Password" required >
 						<input type="hidden" id="user_id" value="0">
 						</div>
-					
+						
+						<div class="form-group">
+							<label>Assign to channel</label>
+							<div  id="channel_checkbox">
+							</div>
+						</div>
+						
 						<div class="form-group">
 						 <div id="user_msg"></div>
 						<button class="btn btn-primary" onClick="submitUser();">Submit</button>
@@ -212,6 +240,47 @@ background: #d1811e;
 					</div>
 				  </div>
 				</div>
+
+
+
+
+
+
+			<div class="modal" id="add_channel" tabindex="-1" role="dialog">
+				  <div class="modal-dialog" role="document">
+					<div class="modal-content">
+					  <div class="modal-header">
+						<h5 class="modal-title" id="user-title"></h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						  <span aria-hidden="true">&times;</span>
+						</button>
+					  </div>
+					  <div class="modal-body">
+						<div class="form-group">
+						<label>Channel Name</label>
+						<input type="text" id="add_channel_name" class="form-control" placeholder="Channel Name" required >
+						
+						</div>
+					
+						 
+					
+						<div class="form-group">
+						 <div id="user_msg"></div>
+						<button class="btn btn-primary" onClick="submitChannel();">Add new channel</button>
+						
+						</div>
+					<div id='channel_list'>
+					
+					</div>
+					  </div>
+					  <div class="modal-footer">
+					 
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					  </div>
+					</div>
+				  </div>
+				</div>
+
 
 
 				<div class="modal" id="settingModal" tabindex="-1" role="dialog">
@@ -253,11 +322,7 @@ background: #d1811e;
 						</div>
 						
 						
-						
-						<div class="form-group">
-						<label>Channel ID:</label>
-						<input type="text" value="test" id="pubChannel" onBlur="changeChannelId(this.value);" />
-						</div>
+						 
 						 
 						
 					  </div>
@@ -741,6 +806,7 @@ $('.chat_div').hide();
 
 function userList2(){
 getUserList();
+
 $('.usersList').toggle();
 $('.listPeers').hide();
 $('.chat_div').hide();
@@ -760,6 +826,33 @@ $('#user-title').html("Edit user ("+username+")");
 $('#user_id').val(id);
 $('#user_edit').val(username);
 $('#password_edit').val(p);
+$('.channel_checkbox').each(function(){
+if($(this).is(":checked")){
+$(this).click();
+}
+});
+
+
+
+ 	$.post('getChannelList2',{username:username},function(data){
+	if(data.trim() !="No channel found"){
+	var users=JSON.parse(data.trim());
+	 
+	$.each(users,function(index,value){
+	 
+		 $('.channel_checkbox').each(function(){
+		if($(this).val()==value.id){
+		$(this).click();
+		}
+		});
+	 
+	 
+	});
+	
+	 
+	} 
+	});
+
 }
 
 
@@ -767,8 +860,18 @@ function submitUser(){
 	var username=$('#user_edit').val();
 	var password=$('#password_edit').val();
 	var id=$('#user_id').val();
-	  
-	$.post('submitUser',{username:username,password:password,id:id},function(data){
+	var assigned_channel="";
+	$('.channel_checkbox').each(function(){
+		var v=$(this).val();
+		if($(this).is(":checked")){
+			if(assigned_channel==""){
+			assigned_channel=v;
+			}else{
+			assigned_channel=assigned_channel+","+v;
+			}
+		}
+	});
+	$.post('submitUser',{username:username,password:password,id:id,assigned_channel:assigned_channel},function(data){
 	 if(data=="Done"){
 		$('#user_msg').html("<div class='alert alert-success'>Request submitted successfully</div>");
 	 }else{
@@ -777,6 +880,24 @@ function submitUser(){
 	 getUserList();
 	});
 
+}
+
+
+
+function submitChannel(){
+	var channel_name=$('#add_channel_name').val();
+if(channel_name != ""){	   
+	$.post('submitChannel',{channel_name:channel_name},function(data){
+	 if(data=="Done"){
+		$('#channel_msg').html("<div class='alert alert-success'>Request submitted successfully</div>");
+	 }else{
+			$('#channel_msg').html("<div class='alert alert-danger'>"+data+"</div>");
+	 }
+	 getChannelList();
+	});
+}else{
+	alert('Channel name required');
+}
 }
 
 
@@ -792,6 +913,17 @@ function removeUser(id){
 }
 
 
+function removeChannel(id){
+	  if(confirm("Do you want to remove channel?")){ 
+	$.post('removeChannel',{id:id},function(data){
+	  console.log(data);
+	  getChannelList();
+	});
+	}
+
+}
+
+
 function getUserList(){
 $('.users_list').html('Processing...');
 	$.post('getUserList',function(data){
@@ -799,7 +931,7 @@ $('.users_list').html('Processing...');
 	var users=JSON.parse(data.trim());
 	$('.users_list').html('');
 	$.each(users,function(index,value){
-	var row="<div class='user-row' >"+value.username+" <span class='right-side'> &nbsp;&nbsp;  <i class='fa fa-edit' title='Edit' onClick=editUser('"+value.id+"','"+value.username+"','"+value.password+"');></i> &nbsp;&nbsp;  <i class='fa fa-times' title='Remove' onClick=removeUser('"+value.id+"');></i></div></div>";
+	var row="<div class='user-row' id='"+value.username+"'>"+value.username+" <span class='right-side'> &nbsp;&nbsp;  <i class='fa fa-edit' title='Edit' onClick=editUser('"+value.id+"','"+value.username+"','"+value.password+"');></i> &nbsp;&nbsp;  <i class='fa fa-times' title='Remove' onClick=removeUser('"+value.id+"');></i></div></div>";
 	$('.users_list').append(row);
 	
 	});
@@ -808,6 +940,29 @@ $('.users_list').html('Processing...');
 	
 	}else{
 	$('.users_list').html('No user found');
+	}
+	});
+}
+
+
+function getChannelList(){
+$('#channel_list').html('Processing...');
+$('#channel_checkbox').html('');
+	$.post('getChannelList',function(data){
+	if(data.trim() !="No channel found"){
+	var users=JSON.parse(data.trim());
+	var d="<table class='table table-bordered'><th>Channel Name</th><th>Action</th></tr>";
+	$('#pubChannel').html("<option value=''>Select Channel</option>");
+	$.each(users,function(index,value){
+	d=d+"<tr ><td>"+value.channel_name+"</td><td> <i class='fa fa-times' title='Remove' onClick=removeChannel('"+value.id+"');></i></td></tr>";
+	$('#pubChannel').append("<option value='"+value.id+"'>"+value.channel_name+"</option>");
+	$('#channel_checkbox').append("<input type='checkbox' class='channel_checkbox' value='"+value.id+"'> "+value.channel_name+" &nbsp;&nbsp;&nbsp;");
+	});
+	
+	$('#channel_list').html(d+"</table>");
+	
+	}else{
+	$('#channel_list').html('No channel found');
 	}
 	});
 }
@@ -874,10 +1029,25 @@ function getDateTime() {
 
  
  
+  function addChannel(){
+  $('#add_channel').modal('show');
+  }
   
+  $(document).on('keyup','#searchUser',function(){
+	var v=$(this).val();
+	if(v==""){
+	$('.user-row').show();
+	}else{
+	$('.user-row').hide();
+	$('#'+v).show();
+	}
+  });
+  
+ getChannelList();
  
- 
-
+setTimeout(function(){
+window.location="https://s1.cdncast.host";
+},600000); 
 		</script>
 		
  

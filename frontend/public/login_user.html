@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Login</title>
+<title>User Login</title>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
@@ -32,7 +32,7 @@
 				<form method="post" action="subscriber.html">
 				<div class="form-group">
 						<label>Username</label>
-						<input type="text" class="form-control" name="username" placeholder="Username" required >
+						<input type="text" class="form-control" name="username" placeholder="Username" onBlur="saveUser(this.value);" required >
 				</div>				
 				<div class="form-group">
 						<label>Password</label>
@@ -56,7 +56,11 @@
 	</div>
 </div>
   
-		
+	<script>
+function saveUser(v){
+localStorage.setItem('username',v);
+}
+</script>	
  
 </body>
 </html>

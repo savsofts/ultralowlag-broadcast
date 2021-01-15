@@ -3,9 +3,17 @@ function randomInt(min, max) {
 }
 var peer_name;
 function iniRoom(){
+	if(pubChannel.value==''){
+		alert('Select channel to connect');
+		return false;
+	}
 	startWS();
 	if(document.getElementById('chatBtn').style.display != undefined){
 		document.getElementById('chatBtn').style.display="inline";
+	}
+	
+	if(document.getElementById('onlineU').style.display != undefined){
+		document.getElementById('onlineU').style.display="inline";
 	}
 	
 	const urlParams = new URLSearchParams(window.location.search);
