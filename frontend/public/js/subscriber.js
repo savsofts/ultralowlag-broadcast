@@ -1,3 +1,10 @@
+function getDomainName(){
+	var url = window.location.href;
+	var arr = url.split("/");
+	var result = arr[0] + "//" + arr[2]
+	return result;
+}
+
 function randomInt(min, max) {
 	return min + Math.floor((max - min) * Math.random());
 }
@@ -23,7 +30,7 @@ if (!roomId || !peerName) {
 }
 startWS();
 
-const socket = io('https://s1.cdncast.host:8080', { query: { roomId, peerName } });
+const socket = io(getDomainName()+':8080', { query: { roomId, peerName } });
 
 // Create a local Room instance associated to the remote Room.
 const room = new mediasoupClient.Room();

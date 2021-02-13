@@ -1,5 +1,5 @@
 module.exports = {
-domain: 's1.cdncast.host',
+domain: 'YOUR_DOMAIN_NAME_HERE',
   server: {
     port: 8080
   },
